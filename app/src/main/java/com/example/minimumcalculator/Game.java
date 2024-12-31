@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Game extends AppCompatActivity {
-    private List<Player> players;
+    private ArrayList<Player> players;
     private LinearLayout linearLayoutGame;
     private ScrollView scrollViewGame;
 
@@ -24,38 +24,27 @@ public class Game extends AppCompatActivity {
         linearLayoutGame = findViewById(R.id.linearLayoutGame);
         scrollViewGame = findViewById(R.id.scrollViewGame);
         Intent intent = getIntent();
-        players = getPlayersFromNamesAndScores(intent.getStringArrayExtra("players"), intent.getIntArrayExtra("scores"));
+        players = intent.getParcelableArrayListExtra("players");
         populatePlayers(players);
     }
 
     public void onClickAddRoundScore(View view){
         Intent intent=new Intent(Game.this, RoundScores.class);
-        intent.putExtra("players", getPlayerNames(this.players));
-        intent.putExtra("scores", getPlayerScores(this.players));
+        intent.putParcelableArrayListExtra("players", this.players);
         startActivity(intent);
         finish();
+    }
+
+    public void onClickViewStats(View view) {
+        Intent intent=new Intent(Game.this, ViewStats.class);
+        intent.putParcelableArrayListExtra("players", this.players);
+        startActivity(intent);
     }
 
     public void onClickFinishGame(View view) {
         Intent intent = new Intent(Game.this, MainActivity.class);
         startActivity(intent);
         finish();
-    }
-
-    private String[] getPlayerNames(List<Player> players) {
-        ArrayList<String> playerNames = new ArrayList<>();
-        for(Player player : players) {
-            playerNames.add(player.getName());
-        }
-        return playerNames.toArray(new String[0]);
-    }
-
-    private int[] getPlayerScores(List<Player> players) {
-        ArrayList<Integer> playerScores = new ArrayList<>();
-        for(Player player : players) {
-            playerScores.add(player.getScore());
-        }
-        return playerScores.stream().mapToInt(Integer::intValue).toArray();
     }
 
     private void populatePlayers(List<Player> players) {
@@ -84,12 +73,43 @@ public class Game extends AppCompatActivity {
         scrollViewGame.getLayoutParams().height = totalHeight;
         scrollViewGame.requestLayout();
 
-        //testing
         LinearLayout parentLayout = (LinearLayout) scrollViewGame.getParent();
         parentLayout.post(() -> {
             parentLayout.requestLayout();
             parentLayout.invalidate();
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+    }
+
+
+    // Extra
+
+    public void printStats() {
+        for(Player player : players) {
+            for (int s : player.getStats()) {
+                System.out.print(s);
+                System.out.print(" ");
+            }
+            System.out.println();
+        }
+    }
+    private String[] getPlayerNames(List<Player> players) {
+        ArrayList<String> playerNames = new ArrayList<>();
+        for(Player player : players) {
+            playerNames.add(player.getName());
+        }
+        return playerNames.toArray(new String[0]);
+    }
+
+    private int[] getPlayerScores(List<Player> players) {
+        ArrayList<Integer> playerScores = new ArrayList<>();
+        for(Player player : players) {
+            playerScores.add(player.getScore());
+        }
+        return playerScores.stream().mapToInt(Integer::intValue).toArray();
     }
 
     public List<Player> getPlayersFromNamesAndScores(String[] playerNames, int[] scores) {

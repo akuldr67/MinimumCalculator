@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RoundScores extends AppCompatActivity {
-    private List<Player> players;
+    private ArrayList<Player> players;
     private LinearLayout linearLayoutAddScores;
     private ScrollView scrollViewAddScores;
     private Map<Player, EditText> playerEditTextMap = new HashMap<>();
@@ -31,7 +31,7 @@ public class RoundScores extends AppCompatActivity {
         linearLayoutAddScores = findViewById(R.id.linearLayoutAddScores);
         scrollViewAddScores = findViewById(R.id.scrollViewAddScores);
         Intent intent = getIntent();
-        players = getPlayersFromNamesAndScores(intent.getStringArrayExtra("players"), intent.getIntArrayExtra("scores"));
+        players = intent.getParcelableArrayListExtra("players");
         populatePlayers(players);
 
         Button addScores = findViewById(R.id.add);
@@ -39,23 +39,15 @@ public class RoundScores extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(RoundScores.this, Game.class);
-                intent.putExtra("players", getPlayerNames(players));
-                intent.putExtra("scores", getPlayerScores(players));
+                updatePlayerScores();
+                intent.putParcelableArrayListExtra("players", players);
                 startActivity(intent);
                 finish();
             }
         });
     }
 
-    private String[] getPlayerNames(List<Player> players) {
-        ArrayList<String> playerNames = new ArrayList<>();
-        for(Player player : players) {
-            playerNames.add(player.getName());
-        }
-        return playerNames.toArray(new String[0]);
-    }
-
-    private int[] getPlayerScores(List<Player> players) {
+    private void updatePlayerScores() {
         Map<Player, String> playerScoresMap = new HashMap<>();
         for (Map.Entry<Player, EditText> entry : playerEditTextMap.entrySet()) {
             Player player = entry.getKey();
@@ -64,14 +56,13 @@ public class RoundScores extends AppCompatActivity {
             playerScoresMap.put(player, score);
         }
 
-        ArrayList<Integer> playerScores = new ArrayList<>();
         for (Player player : players) {
             int oldScore = player.getScore();
             String inputText = playerScoresMap.get(player);
             int enteredValue = inputText.isEmpty() ? 0 : Integer.parseInt(inputText);
-            playerScores.add(oldScore + enteredValue);
+            player.addToStats(enteredValue);
+            player.setScore(oldScore + enteredValue);
         }
-        return playerScores.stream().mapToInt(Integer::intValue).toArray();
     }
 
     private void populatePlayers(List<Player> players) {
@@ -100,6 +91,24 @@ public class RoundScores extends AppCompatActivity {
         scrollViewAddScores.requestLayout();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(RoundScores.this, Game.class);
+        intent.putParcelableArrayListExtra("players", players);
+        startActivity(intent);
+        finish();
+    }
+
+
+    // Extra
+    private String[] getPlayerNames(List<Player> players) {
+        ArrayList<String> playerNames = new ArrayList<>();
+        for(Player player : players) {
+            playerNames.add(player.getName());
+        }
+        return playerNames.toArray(new String[0]);
+    }
+
     public List<Player> getPlayersFromNamesAndScores(String[] playerNames, int[] scores) {
         List<Player> players = new ArrayList<>();
         int n = playerNames.length;
@@ -107,6 +116,25 @@ public class RoundScores extends AppCompatActivity {
             players.add(new Player(playerNames[i], scores[i]));
         }
         return players;
+    }
+
+    private int[] getPlayerScores(List<Player> players) {
+        Map<Player, String> playerScoresMap = new HashMap<>();
+        for (Map.Entry<Player, EditText> entry : playerEditTextMap.entrySet()) {
+            Player player = entry.getKey();
+            EditText editText = entry.getValue();
+            String score = editText.getText().toString().trim();
+            playerScoresMap.put(player, score);
+        }
+
+        ArrayList<Integer> playerScores = new ArrayList<>();
+        for (Player player : players) {
+            int oldScore = player.getScore();
+            String inputText = playerScoresMap.get(player);
+            int enteredValue = inputText.isEmpty() ? 0 : Integer.parseInt(inputText);
+            playerScores.add(oldScore + enteredValue);
+        }
+        return playerScores.stream().mapToInt(Integer::intValue).toArray();
     }
 
 }

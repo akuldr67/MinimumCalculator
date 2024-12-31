@@ -33,10 +33,18 @@
             android:onClick="onClickAddRoundScore"/>
 
         <Button
+            android:id="@+id/viewStatsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="View Stats"
+            android:onClick="onClickViewStats"/>
+
+        <Button
             android:id="@+id/finishGame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:text="Finish Game"
             android:onClick="onClickFinishGame"/>
     </LinearLayout>

@@ -41,13 +41,7 @@ public class GameDialog extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(GameDialog.this, Game.class);
-                String[] playerNames = getPlayerNames();
-                intent.putExtra("players", playerNames);
-                ArrayList<Integer> scores = new ArrayList<>();
-                for(int i=0; i < playerNames.length; i++) {
-                    scores.add(0);
-                }
-                intent.putExtra("scores", scores.stream().mapToInt(Integer::intValue).toArray());
+                intent.putParcelableArrayListExtra("players", getPlayers());
                 startActivity(intent);
                 finish();
             }
@@ -85,6 +79,28 @@ public class GameDialog extends AppCompatActivity {
         });
     }
 
+    public ArrayList<Player> getPlayers() {
+        ArrayList<Player> players = new ArrayList<>();
+        int childCount = linearLayoutPlayers.getChildCount();
+
+        for (int i = 0; i < childCount; i++) {
+            View child = linearLayoutPlayers.getChildAt(i);
+            if (child instanceof EditText) {
+                EditText playerField = (EditText) child;
+                String playerName = playerField.getText().toString().trim();
+                if (!playerName.isEmpty()) {
+                    players.add(new Player(playerName));
+                } else {
+                    players.add(new Player(playerField.getHint().toString()));
+                }
+            }
+        }
+
+        return players;
+    }
+
+    // Extra
+
     public String[] getPlayerNames() {
         ArrayList<String> playerNames = new ArrayList<>();
         int childCount = linearLayoutPlayers.getChildCount();
@@ -104,5 +120,4 @@ public class GameDialog extends AppCompatActivity {
 
         return playerNames.toArray(new String[0]);
     }
-
 }
