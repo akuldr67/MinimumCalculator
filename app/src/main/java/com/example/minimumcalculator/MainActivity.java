@@ -18,11 +18,5 @@ public class MainActivity extends AppCompatActivity {
     public void onClickNewGame(View view){
         Intent intent=new Intent(MainActivity.this, GameDialog.class);
         startActivity(intent);
-        finish();
     }
-//
-//    public void onClickMultiPlayerOnline(View view) {
-//        Intent intent= new Intent(MainActivity.this, SinglePlayer.class);
-//        startActivity(intent);
-//    }
 }

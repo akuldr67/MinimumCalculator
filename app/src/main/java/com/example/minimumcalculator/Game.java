@@ -1,6 +1,7 @@
 package com.example.minimumcalculator;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -16,6 +17,7 @@ public class Game extends AppCompatActivity {
     private ArrayList<Player> players;
     private LinearLayout linearLayoutGame;
     private ScrollView scrollViewGame;
+    private int currentTurn = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) throws RuntimeException {
@@ -25,12 +27,15 @@ public class Game extends AppCompatActivity {
         scrollViewGame = findViewById(R.id.scrollViewGame);
         Intent intent = getIntent();
         players = intent.getParcelableArrayListExtra("players");
+        currentTurn = intent.getIntExtra("currentTurn", 0);
+        currentTurn %= players.size();
         populatePlayers(players);
     }
 
     public void onClickAddRoundScore(View view){
         Intent intent=new Intent(Game.this, RoundScores.class);
         intent.putParcelableArrayListExtra("players", this.players);
+        intent.putExtra("currentTurn", currentTurn);
         startActivity(intent);
         finish();
     }
@@ -49,6 +54,7 @@ public class Game extends AppCompatActivity {
 
     private void populatePlayers(List<Player> players) {
         linearLayoutGame.removeAllViews();
+        int index = 0;
         for (Player player : players) {
             View playerRow = getLayoutInflater().inflate(R.layout.player_row, linearLayoutGame, false);
 
@@ -58,7 +64,13 @@ public class Game extends AppCompatActivity {
             playerNameTextView.setText(player.getName());
             playerScoreTextView.setText(String.valueOf(player.getScore()));
 
+            if (index == currentTurn) {
+                playerNameTextView.setTypeface(playerNameTextView.getTypeface(), Typeface.BOLD_ITALIC);
+                playerNameTextView.setText(player.getName() + " <-");
+            }
+
             linearLayoutGame.addView(playerRow);
+            index++;
         }
         updateScrollViewHeight();
     }

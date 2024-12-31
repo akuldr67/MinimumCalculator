@@ -21,6 +21,7 @@ public class RoundScores extends AppCompatActivity {
     private LinearLayout linearLayoutAddScores;
     private ScrollView scrollViewAddScores;
     private Map<Player, EditText> playerEditTextMap = new HashMap<>();
+    private int currentTurn;
 
 
 
@@ -32,6 +33,7 @@ public class RoundScores extends AppCompatActivity {
         scrollViewAddScores = findViewById(R.id.scrollViewAddScores);
         Intent intent = getIntent();
         players = intent.getParcelableArrayListExtra("players");
+        currentTurn = intent.getIntExtra("currentTurn", 0);
         populatePlayers(players);
 
         Button addScores = findViewById(R.id.add);
@@ -41,6 +43,7 @@ public class RoundScores extends AppCompatActivity {
                 Intent intent = new Intent(RoundScores.this, Game.class);
                 updatePlayerScores();
                 intent.putParcelableArrayListExtra("players", players);
+                intent.putExtra("currentTurn", currentTurn + 1);
                 startActivity(intent);
                 finish();
             }
@@ -95,6 +98,7 @@ public class RoundScores extends AppCompatActivity {
     public void onBackPressed() {
         Intent intent = new Intent(RoundScores.this, Game.class);
         intent.putParcelableArrayListExtra("players", players);
+        intent.putExtra("currentTurn", currentTurn);
         startActivity(intent);
         finish();
     }
