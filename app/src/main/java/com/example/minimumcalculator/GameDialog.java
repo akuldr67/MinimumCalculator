@@ -173,7 +173,7 @@ public class GameDialog extends AppCompatActivity {
     }
 
     private void setupAutoCompleteForField(@NonNull AutoCompleteTextView field) {
-        field.setThreshold(3);
+        field.setThreshold(1);
         field.setAdapter(namesAdapter);
         field.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
