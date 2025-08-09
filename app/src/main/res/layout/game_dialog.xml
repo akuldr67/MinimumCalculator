@@ -13,14 +13,14 @@
         android:padding="16dp">
 
         <!-- Default Player Fields -->
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/player1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="P1"
             android:layout_marginBottom="8dp" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/player2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
