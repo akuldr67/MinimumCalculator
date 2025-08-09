@@ -3,6 +3,7 @@ package com.example.minimumcalculator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -90,6 +91,11 @@ public class ViewStats extends AppCompatActivity {
                 textView.setInputType(InputType.TYPE_CLASS_NUMBER);
                 textView.setText(String.valueOf(cell));
                 setTextViewSettings(textView);
+
+                //reduce text size slightly
+                float currentSizePx = textView.getTextSize();
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(1f, currentSizePx - 5f));
+
                 tableRow.addView(textView);
                 playerStatsEditTextMap.get(player).add(textView);
                 textView.addTextChangedListener(new TextWatcher() {
