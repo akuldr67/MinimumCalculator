@@ -49,7 +49,8 @@ public class Game extends AppCompatActivity {
     }
 
     public void onClickFinishGame(View view) {
-        Intent intent = new Intent(Game.this, MainActivity.class);
+        Intent intent = new Intent(Game.this, GameEndActivity.class);
+        intent.putParcelableArrayListExtra("players", this.players);
         startActivity(intent);
         finish();
     }

@@ -29,6 +29,9 @@
             android:name="com.example.minimumcalculator.Game"
             android:screenOrientation="portrait" />
         <activity
+            android:name="com.example.minimumcalculator.GameEndActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="com.example.minimumcalculator.RoundScores"
             android:screenOrientation="portrait" />
         <activity
