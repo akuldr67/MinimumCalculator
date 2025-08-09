@@ -9,6 +9,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,12 @@ public class Game extends AppCompatActivity {
 
             playerNameTextView.setText(player.getName());
             playerScoreTextView.setText(String.valueOf(player.getScore()));
+            // Set score color based on threshold
+            if (player.getScore() >= 100) {
+                playerScoreTextView.setTextColor(ContextCompat.getColor(this, R.color.red));
+            } else {
+                playerScoreTextView.setTextColor(ContextCompat.getColor(this, R.color.black));
+            }
 
             if (index == currentTurn) {
                 playerNameTextView.setTypeface(playerNameTextView.getTypeface(), Typeface.BOLD_ITALIC);
