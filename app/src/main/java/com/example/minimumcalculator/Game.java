@@ -43,6 +43,7 @@ public class Game extends AppCompatActivity {
     public void onClickViewStats(View view) {
         Intent intent=new Intent(Game.this, ViewStats.class);
         intent.putParcelableArrayListExtra("players", this.players);
+        intent.putExtra("currentTurn", currentTurn);
         startActivity(intent);
     }
 

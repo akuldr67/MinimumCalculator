@@ -2,6 +2,7 @@ package com.example.minimumcalculator;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -15,9 +16,13 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ViewStats extends AppCompatActivity {
     private ArrayList<Player> players;
+    private int currentTurn;
+    private Map<Player, ArrayList<EditText> > playerStatsEditTextMap = new HashMap<>();
 
 
 
@@ -26,7 +31,9 @@ public class ViewStats extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.view_stats);
 
-        players = getIntent().getParcelableArrayListExtra("players");
+        Intent intent = getIntent();
+        players = intent.getParcelableArrayListExtra("players");
+        currentTurn = intent.getIntExtra("currentTurn", 0);
         TableLayout tableLayout = findViewById(R.id.dynamic_table);
 
         int numOfRounds = players.get(0).getStats().size();
@@ -62,12 +69,15 @@ public class ViewStats extends AppCompatActivity {
             playerHeader.setText(player.getName());
             setTextViewSettings(playerHeader);
             tableRow.addView(playerHeader);
+            playerStatsEditTextMap.put(player, new ArrayList<>());
 
             for (int cell : player.getStats()) {
-                TextView textView = new TextView(this);
+                EditText textView = new EditText(this);
+                textView.setInputType(InputType.TYPE_CLASS_NUMBER);
                 textView.setText(String.valueOf(cell));
                 setTextViewSettings(textView);
                 tableRow.addView(textView);
+                playerStatsEditTextMap.get(player).add(textView);
             }
 
             TextView playerTotalView = new TextView(this);
@@ -78,13 +88,45 @@ public class ViewStats extends AppCompatActivity {
             tableLayout.addView(tableRow);
         }
 
-        Button startGame=findViewById(R.id.back_button);
-        startGame.setOnClickListener(new View.OnClickListener() {
+        Button backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
+
+        Button updateScores = findViewById(R.id.update_stats_button);
+        updateScores.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ViewStats.this, Game.class);
+                updatePlayerScores();
+                intent.putParcelableArrayListExtra("players", players);
+                intent.putExtra("currentTurn", currentTurn);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
+    private void updatePlayerScores() {
+        for (Map.Entry<Player, ArrayList<EditText>> entry : playerStatsEditTextMap.entrySet()) {
+            Player player = entry.getKey();
+            int playerOldScore = player.getScore();
+            ArrayList<Integer> playerStats = player.getStats();
+
+            ArrayList<EditText> playerStatsEditText = entry.getValue();
+            for (int i=0; i<playerStatsEditText.size(); i++) {
+                EditText editText = playerStatsEditText.get(i);
+                Integer newRoundScore = Integer.parseInt(editText.getText().toString().trim());
+                int diffInScore = newRoundScore - playerStats.get(i);
+                playerStats.set(i, newRoundScore);
+                int newScore = playerOldScore + diffInScore;
+                player.setScore(newScore);
+                playerOldScore = newScore;
+            }
+        }
     }
 
     public void setTextViewSettings(TextView textView) {
