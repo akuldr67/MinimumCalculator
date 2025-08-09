@@ -27,6 +27,10 @@ public class ViewStats extends AppCompatActivity {
     private Map<Player, ArrayList<EditText> > playerStatsEditTextMap = new HashMap<>();
     // Track total TextView for each player to update in real time
     private Map<Player, TextView> playerTotalTextViewMap = new HashMap<>();
+    // Snapshot of original stats to detect changes
+    private Map<Player, ArrayList<Integer>> originalStatsMap = new HashMap<>();
+    // Update button reference to toggle enabled state
+    private Button updateScoresButton;
 
 
 
@@ -39,6 +43,11 @@ public class ViewStats extends AppCompatActivity {
         players = intent.getParcelableArrayListExtra("players");
         currentTurn = intent.getIntExtra("currentTurn", 0);
         TableLayout tableLayout = findViewById(R.id.dynamic_table);
+
+        // Snapshot original stats for change detection
+        for (Player p : players) {
+            originalStatsMap.put(p, new ArrayList<>(p.getStats()));
+        }
 
         int numOfRounds = players.get(0).getStats().size();
 
@@ -93,6 +102,7 @@ public class ViewStats extends AppCompatActivity {
                     @Override
                     public void afterTextChanged(Editable s) {
                         recalcAndDisplayTotal(currentPlayer);
+                        updateUpdateButtonState();
                     }
                 });
             }
@@ -114,8 +124,9 @@ public class ViewStats extends AppCompatActivity {
             }
         });
 
-        Button updateScores = findViewById(R.id.update_stats_button);
-        updateScores.setOnClickListener(new View.OnClickListener() {
+        updateScoresButton = findViewById(R.id.update_stats_button);
+        updateScoresButton.setEnabled(false);
+        updateScoresButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ViewStats.this, Game.class);
@@ -126,6 +137,9 @@ public class ViewStats extends AppCompatActivity {
                 finish();
             }
         });
+
+        // Ensure correct initial state after UI creation
+        updateUpdateButtonState();
     }
 
     private void updatePlayerScores() {
@@ -164,6 +178,39 @@ public class ViewStats extends AppCompatActivity {
         TextView totalView = playerTotalTextViewMap.get(player);
         if (totalView != null) {
             totalView.setText(String.valueOf(total));
+        }
+    }
+
+    private void updateUpdateButtonState() {
+        boolean anyChanged = isAnyChangeMade();
+        if (updateScoresButton != null) {
+            updateScoresButton.setEnabled(anyChanged);
+        }
+    }
+
+    private boolean isAnyChangeMade() {
+        for (Map.Entry<Player, ArrayList<EditText>> entry : playerStatsEditTextMap.entrySet()) {
+            Player player = entry.getKey();
+            ArrayList<Integer> original = originalStatsMap.get(player);
+            ArrayList<EditText> edits = entry.getValue();
+            if (original == null) continue;
+            for (int i = 0; i < edits.size() && i < original.size(); i++) {
+                String text = edits.get(i).getText().toString().trim();
+                int current = safeParseInt(text);
+                if (current != original.get(i)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private int safeParseInt(String text) {
+        if (text == null || text.isEmpty()) return 0;
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 
