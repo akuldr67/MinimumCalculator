@@ -18,11 +18,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 public class ViewStats extends AppCompatActivity {
     private ArrayList<Player> players;
     private int currentTurn;
     private Map<Player, ArrayList<EditText> > playerStatsEditTextMap = new HashMap<>();
+    // Track total TextView for each player to update in real time
+    private Map<Player, TextView> playerTotalTextViewMap = new HashMap<>();
 
 
 
@@ -70,6 +74,7 @@ public class ViewStats extends AppCompatActivity {
             setTextViewSettings(playerHeader);
             tableRow.addView(playerHeader);
             playerStatsEditTextMap.put(player, new ArrayList<>());
+            final Player currentPlayer = player;
 
             for (int cell : player.getStats()) {
                 EditText textView = new EditText(this);
@@ -78,11 +83,24 @@ public class ViewStats extends AppCompatActivity {
                 setTextViewSettings(textView);
                 tableRow.addView(textView);
                 playerStatsEditTextMap.get(player).add(textView);
+                textView.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        recalcAndDisplayTotal(currentPlayer);
+                    }
+                });
             }
 
             TextView playerTotalView = new TextView(this);
             playerTotalView.setText(String.valueOf(player.getScore()));
             setTextViewSettings(playerTotalView);
+            playerTotalTextViewMap.put(player, playerTotalView);
             tableRow.addView(playerTotalView);
 
             tableLayout.addView(tableRow);
@@ -119,13 +137,33 @@ public class ViewStats extends AppCompatActivity {
             ArrayList<EditText> playerStatsEditText = entry.getValue();
             for (int i=0; i<playerStatsEditText.size(); i++) {
                 EditText editText = playerStatsEditText.get(i);
-                Integer newRoundScore = Integer.parseInt(editText.getText().toString().trim());
+                String text = editText.getText().toString().trim();
+                Integer newRoundScore = !text.isEmpty() ? Integer.parseInt(text): 0;
                 int diffInScore = newRoundScore - playerStats.get(i);
                 playerStats.set(i, newRoundScore);
                 int newScore = playerOldScore + diffInScore;
                 player.setScore(newScore);
                 playerOldScore = newScore;
             }
+        }
+    }
+
+    private void recalcAndDisplayTotal(Player player) {
+        int total = 0;
+        ArrayList<EditText> edits = playerStatsEditTextMap.get(player);
+        if (edits == null) return;
+        for (EditText et : edits) {
+            String text = et.getText().toString().trim();
+            if (text.isEmpty()) {
+                continue;
+            }
+            try {
+                total += Integer.parseInt(text);
+            } catch (NumberFormatException ignored) { }
+        }
+        TextView totalView = playerTotalTextViewMap.get(player);
+        if (totalView != null) {
+            totalView.setText(String.valueOf(total));
         }
     }
 
