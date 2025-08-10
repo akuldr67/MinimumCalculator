@@ -35,4 +35,9 @@ public class GameEndActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    public void onClickGameEndViewPlayerStats(View view) {
+        Intent intent = new Intent(GameEndActivity.this, ViewPlayerStats.class);
+        startActivity(intent);
+    }
 }

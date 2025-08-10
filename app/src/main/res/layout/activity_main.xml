@@ -24,7 +24,7 @@
         android:id="@+id/viewPlayerStats"
         android:layout_width="150dp"
         android:layout_height="100dp"
-        android:text="View Player Stats"
+        android:text="View Stats"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/newGame"
