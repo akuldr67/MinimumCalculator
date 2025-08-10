@@ -19,4 +19,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent=new Intent(MainActivity.this, GameDialog.class);
         startActivity(intent);
     }
+
+    public void onClickViewPlayerStats(View view) {
+        Intent intent = new Intent(MainActivity.this, ViewPlayerStats.class);
+        startActivity(intent);
+    }
 }

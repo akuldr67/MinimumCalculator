@@ -37,6 +37,9 @@
         <activity
             android:name="com.example.minimumcalculator.ViewStats"
             android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.minimumcalculator.ViewPlayerStats"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
