@@ -14,11 +14,18 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.SharedPreferences;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Game extends AppCompatActivity {
     private ArrayList<Player> players;
     private LinearLayout linearLayoutGame;
     private ScrollView scrollViewGame;
     private int currentTurn = 0;
+
+    private static final String PREFS_NAME = "player_prefs";
+    private static final String KEY_OVERALL_STATS = "overall_stats";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) throws RuntimeException {
@@ -49,6 +56,7 @@ public class Game extends AppCompatActivity {
     }
 
     public void onClickFinishGame(View view) {
+        updateOverallStatsIfGameFinished();
         Intent intent = new Intent(Game.this, GameEndActivity.class);
         intent.putParcelableArrayListExtra("players", this.players);
         startActivity(intent);
@@ -140,5 +148,50 @@ public class Game extends AppCompatActivity {
             players.add(new Player(playerNames[i], scores[i]));
         }
         return players;
+    }
+
+    private void updateOverallStatsIfGameFinished() {
+        boolean anyPlayerReachedThreshold = false;
+        for (Player player : players) {
+            if (player.getScore() >= 100) {
+                anyPlayerReachedThreshold = true;
+                break;
+            }
+        }
+        if (!anyPlayerReachedThreshold) {
+            return;
+        }
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String json = prefs.getString(KEY_OVERALL_STATS, "{}");
+        JSONObject root;
+        try {
+            root = new JSONObject(json);
+        } catch (JSONException e) {
+            root = new JSONObject();
+        }
+
+        for (Player player : players) {
+            String name = player.getName();
+            JSONObject stats = root.optJSONObject(name);
+            if (stats == null) {
+                stats = new JSONObject();
+                try {
+                    stats.put("played", 0);
+                    stats.put("lost", 0);
+                } catch (JSONException ignored) { }
+            }
+
+            int played = stats.optInt("played", 0) + 1;
+            int lost = stats.optInt("lost", 0) + (player.getScore() >= 100 ? 1 : 0);
+
+            try {
+                stats.put("played", played);
+                stats.put("lost", lost);
+                root.put(name, stats);
+            } catch (JSONException ignored) { }
+        }
+
+        prefs.edit().putString(KEY_OVERALL_STATS, root.toString()).apply();
     }
 }
