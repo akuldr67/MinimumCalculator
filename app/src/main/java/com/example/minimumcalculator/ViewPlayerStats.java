@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public class ViewPlayerStats extends AppCompatActivity {
 
@@ -61,6 +62,7 @@ public class ViewPlayerStats extends AppCompatActivity {
         headerRow.addView(makeCell("Played", true));
         headerRow.addView(makeCell("Won", true));
         headerRow.addView(makeCell("Lost", true));
+        headerRow.addView(makeCell("Win%", true));
         tableLayout.addView(headerRow);
     }
 
@@ -87,12 +89,15 @@ public class ViewPlayerStats extends AppCompatActivity {
             rows.add(new PlayerStatsRow(playerName, played, won, lost));
         }
 
-        // Sort: played desc, then name asc
+        // Sort: played desc, then won desc, then name asc
         Collections.sort(rows, new Comparator<PlayerStatsRow>() {
             @Override
             public int compare(PlayerStatsRow a, PlayerStatsRow b) {
                 if (a.played != b.played) {
                     return Integer.compare(b.played, a.played);
+                }
+                if (a.won != b.won) {
+                    return Integer.compare(b.won, a.won);
                 }
                 return a.playerName.compareToIgnoreCase(b.playerName);
             }
@@ -105,6 +110,8 @@ public class ViewPlayerStats extends AppCompatActivity {
             row.addView(makeCell(String.valueOf(rowData.played), false));
             row.addView(makeCell(String.valueOf(rowData.won), false));
             row.addView(makeCell(String.valueOf(rowData.lost), false));
+            String winPct = rowData.played > 0 ? String.format(Locale.getDefault(), "%.1f", (rowData.won * 100.0f) / rowData.played) : "0.0";
+            row.addView(makeCell(winPct, false));
             tableLayout.addView(row);
         }
     }
